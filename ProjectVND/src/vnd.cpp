@@ -174,7 +174,7 @@ void VND::run(Instance &instance, Solution &currentSolution)
                 selected_neighborhood++;
             }
             break;
-        case 3:
+        case 2:
             /**** 2-opt ****/
             // cout << "2-opt" << endl;
             bestSolution = opt2(instance, currentSolution);
@@ -182,14 +182,14 @@ void VND::run(Instance &instance, Solution &currentSolution)
             if (bestSolution.getSolutionValue() < currentSolution.getSolutionValue())
             {
                 currentSolution = bestSolution;
-                selected_neighborhood = 2;
+                selected_neighborhood = 1;
             }
             else
             {
                 selected_neighborhood++;
             }
             break;
-        case 2:
+        case 3:
             /**** Reinsertion ****/
             // cout << "Reinsertion" << endl;
             bestSolution = reinsertion(instance, currentSolution);
@@ -197,7 +197,7 @@ void VND::run(Instance &instance, Solution &currentSolution)
             if (bestSolution.getSolutionValue() < currentSolution.getSolutionValue())
             {
                 currentSolution = bestSolution;
-                selected_neighborhood = 3;
+                selected_neighborhood = 1;
             }
             else
             {
