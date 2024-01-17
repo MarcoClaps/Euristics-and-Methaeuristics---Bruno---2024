@@ -13,12 +13,13 @@ class VND
 {
 private:
     Solution swap(Instance &instance, Solution currentSolution);
-	Solution opt2(Instance &instance, Solution currentSolution);
-	Solution reinsertion(Instance &instance, Solution currentSolution);
+    Solution opt2(Instance &instance, Solution currentSolution);
+    Solution reinsertion(Instance &instance, Solution currentSolution);
+
 public:
     VND();
     ~VND();
-	void run(Instance &instance, Solution &currentSolution);
+    void run(Instance &instance, Solution &currentSolution);
 };
 
 #endif

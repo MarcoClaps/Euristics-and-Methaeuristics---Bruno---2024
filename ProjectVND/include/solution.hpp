@@ -11,10 +11,11 @@ private:
     /* data */
     vector<int> route;
     double solutionValue;
+
 public:
     Solution();
     ~Solution();
-    const vector<int>& getRoute();
+    const vector<int> &getRoute();
     void setRoute(vector<int> &route);
     double getSolutionValue();
     void setSolutionValue(double value);

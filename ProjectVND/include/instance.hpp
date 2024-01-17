@@ -13,13 +13,14 @@ class Instance
 private:
     /* data */
     string fileName;
-    vector<vector<double> > distanceMatrix;
+    vector<vector<double>> distanceMatrix;
+
 public:
     Instance(string fileName);
     ~Instance();
     void readMatrix();
     void printMatrix();
-    const vector<vector<double> >& getDistanceMatrix();
+    const vector<vector<double>> &getDistanceMatrix();
 };
 
 #endif
