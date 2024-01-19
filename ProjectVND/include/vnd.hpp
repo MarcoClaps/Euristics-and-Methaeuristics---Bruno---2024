@@ -12,8 +12,8 @@ using namespace std;
 class VND
 {
 private:
-    int calculate_delta_swap(int i, int j, const vector<vector<double>> &distance_matrix);
-    int calculate_delta_2Opt(int i, int j, int k, int l, const vector<vector<double>> &distance_matrix);
+    int calculate_delta_swap(const vector<int> &path, int i, int j, const vector<vector<double>> &distance_matrix);
+    int calculate_delta_2Opt(const vector<int> &path, int i, int j, const vector<vector<double>> &distance_matrix);
     int calculate_delta_reins(const vector<int> &path, int i, int j, const vector<vector<double>> &distance_matrix);
     Solution swap(Instance &instance, Solution currentSolution);
     Solution opt2(Instance &instance, Solution currentSolution);

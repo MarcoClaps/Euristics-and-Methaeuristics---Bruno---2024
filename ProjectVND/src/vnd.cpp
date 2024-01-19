@@ -8,47 +8,58 @@ VND::~VND()
 {
 }
 
-int VND::calculate_delta_swap(int i, int j, const vector<vector<double>> &distance_matrix)
+int VND::calculate_delta_swap(const vector<int> &path, int i, int j, const vector<vector<double>> &distance_matrix)
 {
 
-    // int n = path.size();
-    // int a = path[i];
-    // int b = path[(i + 1) % n];
-    // int c = path[j];
-    // int d = path[(j + 1) % n];
+    int n = path.size();
+    int a = path[i];
+    int b = path[(i + 1) % n];
+    int c = path[j];
+    int d = path[(j + 1) % n];
 
-    // double current_distance = distance_matrix[a][b] + distance_matrix[c][d];
-    // double new_distance = distance_matrix[a][c] + distance_matrix[b][d];
+    double current_distance = distance_matrix[a][b] + distance_matrix[c][d];
+    double new_distance = distance_matrix[a][c] + distance_matrix[b][d];
 
-    double current_distance = distance_matrix[i - 1][i] + distance_matrix[i][i + 1] + distance_matrix[j - 1][j] + distance_matrix[j][j + 1];
-    double new_distance = distance_matrix[i - 1][j] + distance_matrix[j][i + 1] + distance_matrix[j - 1][i] + distance_matrix[i][j + 1];
+    // double current_distance = distance_matrix[i - 1][i] + distance_matrix[i][i + 1] + distance_matrix[j - 1][j] + distance_matrix[j][j + 1];
+    // double new_distance = distance_matrix[i - 1][j] + distance_matrix[j][i + 1] + distance_matrix[j - 1][i] + distance_matrix[i][j + 1];
 
     return new_distance - current_distance;
 }
 
-int VND::calculate_delta_2Opt(int i, int j, int k, int l, const vector<vector<double>> &distance_matrix)
+int VND::calculate_delta_2Opt(const vector<int> &path, int i, int j, const vector<vector<double>> &distance_matrix)
 {
 
-    double current_distance = distance_matrix[i][j] + distance_matrix[k][l];
-    double new_distance = distance_matrix[i][k] + distance_matrix[j][l];
+    // double current_distance = distance_matrix[i][j] + distance_matrix[k][l];
+    // double new_distance = distance_matrix[i][k] + distance_matrix[j][l];
+
+    // return new_distance - current_distance;
+    int n = path.size();
+
+    // Calcola la differenza nella distanza totale dopo l'applicazione di 2-opt
+    int a = path[i];
+    int b = path[(i + 1) % n];
+    int c = path[j];
+    int d = path[(j + 1) % n];
+
+    double current_distance = distance_matrix[a][b] + distance_matrix[c][d];
+    double new_distance = distance_matrix[a][c] + distance_matrix[b][d];
 
     return new_distance - current_distance;
 }
 
-int VND::calculate_delta_reins(const vector<int> &path, int i, int j, const vector<vector<double>> &distance_matrix)
+int VND::calculate_delta_reins(const vector<int> &path, int removed_index, int insert_index, const vector<vector<double>> &distance_matrix)
 {
 
-    // int n = path.size();
-    // int a = path[i];
-    // int b = path[(i + 1) % n];
-    // int c = path[j];
-    // int d = path[(j + 1) % n];
+    int n = path.size();
 
-    // double current_distance = distance_matrix[a][b] + distance_matrix[c][d];
-    // double new_distance = distance_matrix[a][c] + distance_matrix[b][d];
+    // Calcola la differenza nella distanza totale dopo l'inserimento della città
+    int a = path[(removed_index - 1 + n) % n];
+    int b = path[removed_index];
+    int c = path[(removed_index + 1) % n];
+    int d = path[insert_index];
 
-    double current_distance = distance_matrix[i - 1][i] + distance_matrix[i][i + 1] + distance_matrix[j - 1][j] + distance_matrix[j][j + 1];
-    double new_distance = distance_matrix[i - 1][j] + distance_matrix[j][i + 1] + distance_matrix[j - 1][i] + distance_matrix[i][j + 1];
+    double current_distance = distance_matrix[a][b] + distance_matrix[b][c] + distance_matrix[d][path[insert_index + 1]];
+    double new_distance = distance_matrix[a][c] + distance_matrix[d][b] + distance_matrix[b][path[insert_index + 1]];
 
     return new_distance - current_distance;
 }
@@ -64,7 +75,7 @@ Solution VND::swap(Instance &instance, Solution currentSolution)
     {
         for (int j = i + 1; j < currentSolution.getRoute().size() - 1; j++)
         {
-            int delta = calculate_delta_swap(i, j, instance.getDistanceMatrix());
+            int delta = calculate_delta_swap(currentSolution.getRoute(), i, j, instance.getDistanceMatrix());
             if (delta >= 0)
             {
                 continue;
@@ -121,7 +132,7 @@ Solution VND::opt2(Instance &instance, Solution currentSolution)
             while (k < l)
             {
 
-                int delta = calculate_delta_2Opt(i, i+1, j, j+1, instance.getDistanceMatrix());
+                int delta = calculate_delta_2Opt(currentSolution.getRoute(), i, j, instance.getDistanceMatrix());
                 if (delta < 0)
                 {
                     std::swap(route[k], route[l]);
@@ -172,10 +183,13 @@ Solution VND::reinsertion(Instance &instance, Solution currentSolution)
             //     cout << route[k] << " ";
             // }
             // cout << endl;
-
-            for (int k = i; k <= j; k++)
+            int delta = calculate_delta_reins(route, i, j, instance.getDistanceMatrix());
+            if (delta < 0)
             {
-                std::swap(route[k], route[k + 1]);
+                for (int k = i; k <= j; k++)
+                {
+                    std::swap(route[k], route[k + 1]);
+                }
             }
 
             for (int k = 0; k < route.size() - 1; k++)
