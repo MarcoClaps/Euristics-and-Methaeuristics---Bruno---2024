@@ -8,38 +8,34 @@ VND::~VND()
 {
 }
 
-int VND::calculate_delta_swap(const vector<int> &path, int i, int j, const vector<vector<double>> &distance_matrix)
+int VND::calculate_delta_swap_2opt_Marco(const vector<int> &path, int i, int j, const vector<vector<double>> &distance_matrix)
 {
 
-    int n = path.size();
-    int a = path[i];
-    int b = path[(i + 1) % n];
-    int c = path[j];
-    int d = path[(j + 1) % n];
+    // int n = path.size();
+    // int a = path[i];
+    // int b = path[(i + 1) % n];
+    // int c = path[j];
+    // int d = path[(j + 1) % n];
 
-    double current_distance = distance_matrix[a][b] + distance_matrix[c][d];
-    double new_distance = distance_matrix[a][c] + distance_matrix[b][d];
+    // double current_distance = distance_matrix[a][b] + distance_matrix[c][d];
+    // double new_distance = distance_matrix[a][c] + distance_matrix[b][d];
 
-    // double current_distance = distance_matrix[i - 1][i] + distance_matrix[i][i + 1] + distance_matrix[j - 1][j] + distance_matrix[j][j + 1];
-    // double new_distance = distance_matrix[i - 1][j] + distance_matrix[j][i + 1] + distance_matrix[j - 1][i] + distance_matrix[i][j + 1];
+    double current_distance = distance_matrix[i - 1][i] + distance_matrix[i][i + 1] + distance_matrix[j - 1][j] + distance_matrix[j][j + 1];
+    double new_distance = distance_matrix[i - 1][j] + distance_matrix[j][i + 1] + distance_matrix[j - 1][i] + distance_matrix[i][j + 1];
 
     return new_distance - current_distance;
 }
 
-int VND::calculate_delta_2Opt(const vector<int> &path, int i, int j, const vector<vector<double>> &distance_matrix)
+int VND::calculate_delta_swap_2opt_Salvo(const vector<int> &path, int i, int j, const vector<vector<double>> &distance_matrix)
 {
-
-    // double current_distance = distance_matrix[i][j] + distance_matrix[k][l];
-    // double new_distance = distance_matrix[i][k] + distance_matrix[j][l];
-
-    // return new_distance - current_distance;
     int n = path.size();
 
     // Calcola la differenza nella distanza totale dopo l'applicazione di 2-opt
     int a = path[i];
-    int b = path[(i + 1) % n];
+    int b = path[(i + 1) % n]; // Utilizzando l'operatore modulo % n, garantiamo che l'indice risultante sia sempre all'interno dei limiti validi del vettore del percorso.
+    // rappresenta il punto successivo a path[i] nel percorso. Se i è l'ultimo elemento del vettore (n-1), l'operatore % n riporterà a 0, consentendo il collegamento circolare.
     int c = path[j];
-    int d = path[(j + 1) % n];
+    int d = path[(j + 1) % n]; // rappresenta il nodo successivo a path[j] nel percorso. Stessa logica di cui sopra, se j è l'ultimo elemento del vettore (n-1), l'operatore % n riporterà a 0.
 
     double current_distance = distance_matrix[a][b] + distance_matrix[c][d];
     double new_distance = distance_matrix[a][c] + distance_matrix[b][d];
@@ -47,12 +43,10 @@ int VND::calculate_delta_2Opt(const vector<int> &path, int i, int j, const vecto
     return new_distance - current_distance;
 }
 
-int VND::calculate_delta_reins(const vector<int> &path, int removed_index, int insert_index, const vector<vector<double>> &distance_matrix)
+int VND::calculate_delta_reinsertion(const vector<int> &path, int removed_index, int insert_index, const vector<vector<double>> &distance_matrix)
 {
-
     int n = path.size();
-
-    // Calcola la differenza nella distanza totale dopo l'inserimento della città
+    // Calcola la differenza nella distanza totale dopo l'inserimento
     int a = path[(removed_index - 1 + n) % n];
     int b = path[removed_index];
     int c = path[(removed_index + 1) % n];
@@ -75,7 +69,7 @@ Solution VND::swap(Instance &instance, Solution currentSolution)
     {
         for (int j = i + 1; j < currentSolution.getRoute().size() - 1; j++)
         {
-            int delta = calculate_delta_swap(currentSolution.getRoute(), i, j, instance.getDistanceMatrix());
+            int delta = calculate_delta_swap_2opt_Marco(currentSolution.getRoute(), i, j, instance.getDistanceMatrix());
             if (delta >= 0)
             {
                 continue;
@@ -126,39 +120,37 @@ Solution VND::opt2(Instance &instance, Solution currentSolution)
             //     cout << route[k] << " ";
             // }
             // cout << endl;
-
-            int k = i;
-            int l = j;
-            while (k < l)
+            int delta = calculate_delta_swap_2opt_Salvo(currentSolution.getRoute(), i, j, instance.getDistanceMatrix());
+            if (delta < 0)
             {
-
-                int delta = calculate_delta_2Opt(currentSolution.getRoute(), i, j, instance.getDistanceMatrix());
-                if (delta < 0)
+                int k = i;
+                int l = j;
+                while (k < l)
                 {
                     std::swap(route[k], route[l]);
+                    k++;
+                    l--;
                 }
-                k++;
-                l--;
-            }
 
-            for (int k = 0; k < route.size() - 1; k++)
-            {
-                solValue += instance.getDistanceMatrix()[route[k]][route[k + 1]];
-            }
-            if (solValue < best2Opt.getSolutionValue())
-            {
-                best2Opt.setRoute(route);
-                best2Opt.setSolutionValue(solValue);
+                for (int k = 0; k < route.size() - 1; k++)
+                {
+                    solValue += instance.getDistanceMatrix()[route[k]][route[k + 1]];
+                }
+                if (solValue < best2Opt.getSolutionValue())
+                {
+                    best2Opt.setRoute(route);
+                    best2Opt.setSolutionValue(solValue);
 
-                // Print best solution
-                // cout << "Improvement solution - Opt-2: ";
-                // for (int k = 0; k < route.size() - 1; k++)
-                // {
-                //     cout << route[k] << " ";
-                // }
-                // cout << endl;
+                    // Print best solution
+                    // cout << "Improvement solution - Opt-2: ";
+                    // for (int k = 0; k < route.size() - 1; k++)
+                    // {
+                    //     cout << route[k] << " ";
+                    // }
+                    // cout << endl;
+                }
+                solValue = 0;
             }
-            solValue = 0;
         }
     }
     return best2Opt;
@@ -183,33 +175,33 @@ Solution VND::reinsertion(Instance &instance, Solution currentSolution)
             //     cout << route[k] << " ";
             // }
             // cout << endl;
-            int delta = calculate_delta_reins(route, i, j, instance.getDistanceMatrix());
+            int delta = calculate_delta_reinsertion(route, i, j, instance.getDistanceMatrix());
             if (delta < 0)
             {
                 for (int k = i; k <= j; k++)
                 {
                     std::swap(route[k], route[k + 1]);
                 }
-            }
 
-            for (int k = 0; k < route.size() - 1; k++)
-            {
-                solValue += instance.getDistanceMatrix()[route[k]][route[k + 1]];
-            }
-            if (solValue < bestReinsert.getSolutionValue())
-            {
-                bestReinsert.setRoute(route);
-                bestReinsert.setSolutionValue(solValue);
+                for (int k = 0; k < route.size() - 1; k++)
+                {
+                    solValue += instance.getDistanceMatrix()[route[k]][route[k + 1]];
+                }
+                if (solValue < bestReinsert.getSolutionValue())
+                {
+                    bestReinsert.setRoute(route);
+                    bestReinsert.setSolutionValue(solValue);
 
-                // Print best solution
-                // cout << "Improvement solution - ReInsert: ";
-                // for (int k = 0; k < route.size() - 1; k++)
-                // {
-                //     cout << route[k] << " ";
-                // }
-                // cout << endl;
+                    // Print best solution
+                    // cout << "Improvement solution - ReInsert: ";
+                    // for (int k = 0; k < route.size() - 1; k++)
+                    // {
+                    //     cout << route[k] << " ";
+                    // }
+                    // cout << endl;
+                }
+                solValue = 0;
             }
-            solValue = 0;
         }
     }
     return bestReinsert;
