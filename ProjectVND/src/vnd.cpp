@@ -8,34 +8,45 @@ VND::~VND()
 {
 }
 
-int VND::calculate_delta_swap_2opt_Marco(const vector<int> &path, int i, int j, const vector<vector<double>> &distance_matrix)
+/**
+ * @brief Computes the difference in total distance switching two nodes (Swap)
+ *
+ * @param path
+ * @param i
+ * @param j
+ * @param distance_matrix
+ * @return int
+ */
+int VND::calculate_delta_swap(const vector<int> &path, int i, int j, const vector<vector<double>> &distance_matrix)
 {
-
-    // int n = path.size();
-    // int a = path[i];
-    // int b = path[(i + 1) % n];
-    // int c = path[j];
-    // int d = path[(j + 1) % n];
-
-    // double current_distance = distance_matrix[a][b] + distance_matrix[c][d];
-    // double new_distance = distance_matrix[a][c] + distance_matrix[b][d];
-
     double current_distance = distance_matrix[i - 1][i] + distance_matrix[i][i + 1] + distance_matrix[j - 1][j] + distance_matrix[j][j + 1];
     double new_distance = distance_matrix[i - 1][j] + distance_matrix[j][i + 1] + distance_matrix[j - 1][i] + distance_matrix[i][j + 1];
 
     return new_distance - current_distance;
 }
 
-int VND::calculate_delta_swap_2opt_Salvo(const vector<int> &path, int i, int j, const vector<vector<double>> &distance_matrix)
+/**
+ * @brief Computes the difference in total distance in a possible 2-opt move
+ *
+ * @param path
+ * @param i
+ * @param j
+ * @param distance_matrix
+ * @return int
+ */
+int VND::calculate_delta_2opt(const vector<int> &path, int i, int j, const vector<vector<double>> &distance_matrix)
 {
     int n = path.size();
 
-    // Calcola la differenza nella distanza totale dopo l'applicazione di 2-opt
+    // a is the node at index i
     int a = path[i];
-    int b = path[(i + 1) % n]; // Utilizzando l'operatore modulo % n, garantiamo che l'indice risultante sia sempre all'interno dei limiti validi del vettore del percorso.
-    // rappresenta il punto successivo a path[i] nel percorso. Se i è l'ultimo elemento del vettore (n-1), l'operatore % n riporterà a 0, consentendo il collegamento circolare.
+    // b is the node after a. With the modulo operator % n, we ensure that the resulting index is always within the valid limits of the path vector.
+    // if i = n - 1, then (i + 1) % n = 0, which is the first node of the path.
+    int b = path[(i + 1) % n];
+    // c is the node at index j
     int c = path[j];
-    int d = path[(j + 1) % n]; // rappresenta il nodo successivo a path[j] nel percorso. Stessa logica di cui sopra, se j è l'ultimo elemento del vettore (n-1), l'operatore % n riporterà a 0.
+    // d is the node after c. Same logic as above.
+    int d = path[(j + 1) % n];
 
     double current_distance = distance_matrix[a][b] + distance_matrix[c][d];
     double new_distance = distance_matrix[a][c] + distance_matrix[b][d];
@@ -43,13 +54,26 @@ int VND::calculate_delta_swap_2opt_Salvo(const vector<int> &path, int i, int j, 
     return new_distance - current_distance;
 }
 
+/**
+ * @brief Computes the difference in total distance in a possible reinsertion move
+ *
+ * @param path
+ * @param removed_index
+ * @param insert_index
+ * @param distance_matrix
+ * @return int
+ */
 int VND::calculate_delta_reinsertion(const vector<int> &path, int removed_index, int insert_index, const vector<vector<double>> &distance_matrix)
 {
     int n = path.size();
-    // Calcola la differenza nella distanza totale dopo l'inserimento
+
+    // a is the index before the removed node
     int a = path[(removed_index - 1 + n) % n];
+    // b is the index of the removed node
     int b = path[removed_index];
+    // c is the index after the removed node
     int c = path[(removed_index + 1) % n];
+    // d is the index at which the removed node will be inserted
     int d = path[insert_index];
 
     double current_distance = distance_matrix[a][b] + distance_matrix[b][c] + distance_matrix[d][path[insert_index + 1]];
@@ -58,6 +82,13 @@ int VND::calculate_delta_reinsertion(const vector<int> &path, int removed_index,
     return new_distance - current_distance;
 }
 
+/**
+ * @brief Local search - Swap. First compute the delta of the swap, if it is negative, then swap the nodes.
+ *
+ * @param instance
+ * @param currentSolution
+ * @return Solution
+ */
 Solution VND::swap(Instance &instance, Solution currentSolution)
 {
     vector<int> route;
@@ -69,7 +100,7 @@ Solution VND::swap(Instance &instance, Solution currentSolution)
     {
         for (int j = i + 1; j < currentSolution.getRoute().size() - 1; j++)
         {
-            int delta = calculate_delta_swap_2opt_Marco(currentSolution.getRoute(), i, j, instance.getDistanceMatrix());
+            int delta = calculate_delta_swap(currentSolution.getRoute(), i, j, instance.getDistanceMatrix());
             if (delta >= 0)
             {
                 continue;
@@ -101,6 +132,14 @@ Solution VND::swap(Instance &instance, Solution currentSolution)
     return bestSwap;
 }
 
+/**
+ * @brief Local search - 2-opt. First compute the delta of the 2-opt, if it is negative, then swap the nodes.
+ *
+ * @param instance
+ * @param currentSolution
+ * @return Solution
+ *
+ */
 Solution VND::opt2(Instance &instance, Solution currentSolution)
 {
     vector<int> route;
@@ -120,7 +159,7 @@ Solution VND::opt2(Instance &instance, Solution currentSolution)
             //     cout << route[k] << " ";
             // }
             // cout << endl;
-            int delta = calculate_delta_swap_2opt_Salvo(currentSolution.getRoute(), i, j, instance.getDistanceMatrix());
+            int delta = calculate_delta_2opt(currentSolution.getRoute(), i, j, instance.getDistanceMatrix());
             if (delta < 0)
             {
                 int k = i;
@@ -156,6 +195,14 @@ Solution VND::opt2(Instance &instance, Solution currentSolution)
     return best2Opt;
 }
 
+/**
+ * @brief Local search - Reinsertion. First compute the delta of the reinsertion, if it is negative, then swap the nodes.
+ *
+ * @param instance
+ * @param currentSolution
+ * @return Solution
+ *
+ */
 Solution VND::reinsertion(Instance &instance, Solution currentSolution)
 {
     vector<int> route;
@@ -206,6 +253,13 @@ Solution VND::reinsertion(Instance &instance, Solution currentSolution)
     }
     return bestReinsert;
 }
+
+/**
+ * @brief Run the VND algorithm. At first, the algorithm runs the Swap neighborhood, then the 2-opt neighborhood and finally the Reinsertion neighborhood. Every time it cannot improve the solution, it goes to the next neighborhood. If the solution is improved, the algorithm restarts the process from the first neighborhood.
+ *
+ * @param instance
+ * @param currentSolution
+ */
 
 void VND::run(Instance &instance, Solution &currentSolution)
 {

@@ -4,10 +4,18 @@
 #include <iostream>
 #include <float.h>
 #include <chrono>
+#include <math.h>
 
 using namespace std;
 using namespace std::chrono;
 
+/***********************************************************************************
+ * @brief: greedy construction of the initial solution
+ *
+ * @param instance: instance of the problem
+ *
+ * @return solution: initial solution
+ ***********************************************************************************/
 Solution greedyConstruction(Instance &instance)
 {
     Solution solution;
@@ -54,6 +62,78 @@ Solution greedyConstruction(Instance &instance)
     return solution;
 }
 
+/***********************************************************************************
+ * @brief: export the results to a txt file. Greedy and VND execution time and solution value
+ *
+ * @param path: path to the txt file
+ * @param solution: solution
+ * @param routeGre: route of the greedy construction
+ * @param executionTimeGreedy: execution time of the greedy construction
+ * @param solutionValueGreedy: solution value of the greedy construction
+ * @param routeVND: route of the VND
+ * @param executionTimeVND: execution time of the VND
+ * @param solutionValueVND: solution value of the VND
+ *
+ * @return void
+ ***********************************************************************************/
+void exportResults(string &path, Solution &solution, vector<int> &routeGre, int &executionTimeGreedy, int &solutionValueGreedy, vector<int> &routeVND, int &executionTimeVND, int &solutionValueVND)
+{
+    ofstream file(path);
+    // gather the size of the route
+    int n = routeGre.size();
+    // Do the square root (douple) the ceil (int)
+    int breakline = ceil(sqrt(n));
+    // print the breakline value
+    cout << "Breakline with value: " << breakline << endl;
+
+    if (file.is_open())
+    {
+        file << "##### Initial Solution #####" << endl;
+        file << "Route: ";
+        int printed = 0;
+        for (int i = 0; i < routeGre.size(); i++)
+        {
+            file << routeGre[i] << " ";
+            printed++;
+            if (printed == breakline)
+            {
+                file << "\n";
+                printed = 0;
+            }
+        }
+        file << "\nSolution Value: " << solutionValueGreedy << endl;
+        file << "\nExecution time: " << executionTimeGreedy << "ms\n"
+             << endl;
+        file << "############################\n"
+             << endl;
+        file << "###### Best Solution #######" << endl;
+        file << "Route: ";
+        printed = 0;
+        for (int i = 0; i < routeVND.size(); i++)
+        {
+            file << routeVND[i] << " ";
+            printed++;
+            if (printed == breakline)
+            {
+                file << endl;
+                printed = 0;
+            }
+        }
+        file << "\nSolution Value: " << solutionValueVND << endl;
+        file << "\nExecution time: " << executionTimeVND << "ms\n"
+             << endl;
+        file << "############################" << endl;
+        file.close();
+    }
+    else
+    {
+        cout << "Unable to open file" << endl;
+    }
+}
+
+/***********************************************************************************
+ *  MAIN
+ ***********************************************************************************/
 int main(int argc, char **argv)
 {
     string pathInstance;
@@ -73,46 +153,74 @@ int main(int argc, char **argv)
 
     pathInstance = string(argv[1]);
 
+    // read the instance
     Instance instance(pathInstance);
     instance.readMatrix();
     // instance.printMatrix();
 
     // time start greedy
     auto startGreedy = high_resolution_clock::now();
+
+    // procedure
     Solution solution = greedyConstruction(instance);
-    vector<int> route = solution.getRoute();
+    vector<int> routeGre = solution.getRoute();
+
     // time end greedy
     auto stopGreedy = high_resolution_clock::now();
 
     cout << "##### Initial Solution #####" << endl;
     cout << "Route: ";
-    for (int i = 0; i < route.size(); i++)
+    for (int i = 0; i < routeGre.size(); i++)
     {
-        cout << route[i] << " ";
+        cout << routeGre[i] << " ";
     }
-    cout << "\nSolution Value: " << solution.getSolutionValue() << endl;
-    cout << "\nExecution time: " << duration_cast<milliseconds>(stopGreedy - startGreedy).count() << "ms\n"
+
+    // gather the execution time and the solution value of the greedy construction
+    int executionTimeGreedy = duration_cast<milliseconds>(stopGreedy - startGreedy).count();
+    int solutionValueGreedy = solution.getSolutionValue();
+
+    // print output
+    cout << "\nSolution Value: " << solutionValueGreedy << endl;
+    cout << "\nExecution time: " << executionTimeGreedy << "ms\n"
          << endl;
     cout << "############################\n"
          << endl;
 
     // time start vnd
     auto startVND = high_resolution_clock::now();
+
+    // procedure
     solver.run(instance, solution);
-    route = solution.getRoute();
+    vector<int> routeVND = solution.getRoute();
+
     // time end vnd
     auto stopVND = high_resolution_clock::now();
 
+    // gather the execution time and the solution value of the vnd
+    int executionTimeVND = duration_cast<milliseconds>(stopVND - startVND).count();
+    int solutionValueVND = solution.getSolutionValue();
+
+    // print output
     cout << "###### Best Solution #######" << endl;
     cout << "Route: ";
-    for (int i = 0; i < route.size(); i++)
+    for (int i = 0; i < routeVND.size(); i++)
     {
-        cout << route[i] << " ";
+        cout << routeVND[i] << " ";
     }
-    cout << "\nSolution Value: " << solution.getSolutionValue() << endl;
-    cout << "\nExecution time: " << duration_cast<milliseconds>(stopVND - startVND).count() << "ms\n"
+    cout << "\nSolution Value: " << solutionValueVND << endl;
+    cout << "\nExecution time: " << executionTimeVND << "ms\n"
          << endl;
     cout << "############################" << endl;
+
+    // export the results
+    // instance name
+    string instanceName = argv[1];
+    // substring to remove the path and the extension of the instance
+    instanceName = instanceName.substr(instanceName.find_last_of("/") + 1, instanceName.find_last_of(".") - instanceName.find_last_of("/") - 1);
+    // txt file name
+    string instanceResult = "../output/" + instanceName + ".txt";
+    // call the function to export the results
+    exportResults(instanceResult, solution, routeGre, executionTimeGreedy, solutionValueGreedy, routeVND, executionTimeVND, solutionValueVND);
 
     return 0;
 }

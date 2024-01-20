@@ -9,6 +9,11 @@ Instance::~Instance()
 {
 }
 
+/**
+ * @brief: read the distance matrix from a file .txt
+ *
+ * @param fileName: name of the file
+ */
 void Instance::readMatrix()
 {
     ifstream file(this->fileName);
@@ -34,7 +39,10 @@ void Instance::readMatrix()
         exit(-1);
     }
 }
-
+/**
+ * @brief: print the distance matrix
+ *
+ */
 void Instance::printMatrix()
 {
     for (int i = 0; i < this->distanceMatrix.size(); i++)
@@ -47,6 +55,11 @@ void Instance::printMatrix()
     }
 }
 
+/**
+ * @brief: get the distance matrix
+ *
+ * @return vector<vector<double>>
+ */
 const vector<vector<double>> &Instance::getDistanceMatrix()
 {
     return this->distanceMatrix;
