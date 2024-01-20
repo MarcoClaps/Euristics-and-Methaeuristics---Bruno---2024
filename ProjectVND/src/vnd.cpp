@@ -160,36 +160,35 @@ Solution VND::opt2(Instance &instance, Solution currentSolution)
             // }
             // cout << endl;
             int delta = calculate_delta_2opt(currentSolution.getRoute(), i, j, instance.getDistanceMatrix());
-            if (delta < 0)
+            if (delta >= 0)
+                continue;
+            int k = i;
+            int l = j;
+            while (k < l)
             {
-                int k = i;
-                int l = j;
-                while (k < l)
-                {
-                    std::swap(route[k], route[l]);
-                    k++;
-                    l--;
-                }
-
-                for (int k = 0; k < route.size() - 1; k++)
-                {
-                    solValue += instance.getDistanceMatrix()[route[k]][route[k + 1]];
-                }
-                if (solValue < best2Opt.getSolutionValue())
-                {
-                    best2Opt.setRoute(route);
-                    best2Opt.setSolutionValue(solValue);
-
-                    // Print best solution
-                    // cout << "Improvement solution - Opt-2: ";
-                    // for (int k = 0; k < route.size() - 1; k++)
-                    // {
-                    //     cout << route[k] << " ";
-                    // }
-                    // cout << endl;
-                }
-                solValue = 0;
+                std::swap(route[k], route[l]);
+                k++;
+                l--;
             }
+
+            for (int k = 0; k < route.size() - 1; k++)
+            {
+                solValue += instance.getDistanceMatrix()[route[k]][route[k + 1]];
+            }
+            if (solValue < best2Opt.getSolutionValue())
+            {
+                best2Opt.setRoute(route);
+                best2Opt.setSolutionValue(solValue);
+
+                // Print best solution
+                // cout << "Improvement solution - Opt-2: ";
+                // for (int k = 0; k < route.size() - 1; k++)
+                // {
+                //     cout << route[k] << " ";
+                // }
+                // cout << endl;
+            }
+            solValue = 0;
         }
     }
     return best2Opt;
@@ -223,32 +222,32 @@ Solution VND::reinsertion(Instance &instance, Solution currentSolution)
             // }
             // cout << endl;
             int delta = calculate_delta_reinsertion(route, i, j, instance.getDistanceMatrix());
-            if (delta < 0)
+            if (delta >= 0)
+                continue;
+                
+            for (int k = i; k <= j; k++)
             {
-                for (int k = i; k <= j; k++)
-                {
-                    std::swap(route[k], route[k + 1]);
-                }
-
-                for (int k = 0; k < route.size() - 1; k++)
-                {
-                    solValue += instance.getDistanceMatrix()[route[k]][route[k + 1]];
-                }
-                if (solValue < bestReinsert.getSolutionValue())
-                {
-                    bestReinsert.setRoute(route);
-                    bestReinsert.setSolutionValue(solValue);
-
-                    // Print best solution
-                    // cout << "Improvement solution - ReInsert: ";
-                    // for (int k = 0; k < route.size() - 1; k++)
-                    // {
-                    //     cout << route[k] << " ";
-                    // }
-                    // cout << endl;
-                }
-                solValue = 0;
+                std::swap(route[k], route[k + 1]);
             }
+
+            for (int k = 0; k < route.size() - 1; k++)
+            {
+                solValue += instance.getDistanceMatrix()[route[k]][route[k + 1]];
+            }
+            if (solValue < bestReinsert.getSolutionValue())
+            {
+                bestReinsert.setRoute(route);
+                bestReinsert.setSolutionValue(solValue);
+
+                // Print best solution
+                // cout << "Improvement solution - ReInsert: ";
+                // for (int k = 0; k < route.size() - 1; k++)
+                // {
+                //     cout << route[k] << " ";
+                // }
+                // cout << endl;
+            }
+            solValue = 0;
         }
     }
     return bestReinsert;
