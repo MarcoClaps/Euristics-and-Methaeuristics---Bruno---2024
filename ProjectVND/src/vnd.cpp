@@ -30,6 +30,21 @@ int VND::calculate_delta_swap(int i, int j, const vector<vector<double>> &distan
     return new_distance - current_distance;
 }
 
+//Not used!
+int VND::calculate_delta_swap2(const vector<int>& path, int i, int j, const vector<vector<double>>& distance_matrix) {
+    int n = path.size();
+
+    int a = path[i];
+    int b = path[(i + 1) % n];
+    int c = path[j];
+    int d = path[(j + 1) % n];
+
+    double current_distance = distance_matrix[a][b] + distance_matrix[c][d];
+    double new_distance = distance_matrix[a][c] + distance_matrix[b][d];
+
+    return new_distance - current_distance;
+}
+
 /**
  * @brief Computes the difference in total distance in a possible 2-opt move
  *
@@ -94,6 +109,7 @@ int VND::calculate_delta_reinsertion(const vector<int> &path, int removed_index,
  * @param currentSolution
  * @return Solution
  */
+
 Solution VND::swap(Instance &instance, Solution currentSolution)
 {
     vector<int> route;
@@ -137,7 +153,7 @@ Solution VND::swap(Instance &instance, Solution currentSolution)
     return bestSwap;
 }
 /*
-Solution swap(Instance &instance, Solution currentSolution)
+Solution VND::swap(Instance &instance, Solution currentSolution)
 {
     vector<int> route;
     Solution bestSwap;
@@ -149,7 +165,7 @@ Solution swap(Instance &instance, Solution currentSolution)
     {
         for (int j = i + 1; j < currentSolution.getRoute().size() - 1; j++)
         {
-            int delta = calculate_delta_swap(i, j, instance.getDistanceMatrix());
+            int delta = calculate_delta_swap2(currentSolution.getRoute(),i, j, instance.getDistanceMatrix());
             if (delta >= 0)
             {
                 continue;
@@ -162,9 +178,9 @@ Solution swap(Instance &instance, Solution currentSolution)
             }
         }
     }
-    //cout << "prima " << bestDelta << " " << currentSolution.getSolutionValue() << " " << bestSwap.getSolutionValue() << endl;
+    // cout << "prima " << bestDelta << " " << currentSolution.getSolutionValue() << " " << bestSwap.getSolutionValue() << endl;
 
-    if (bestSwap.getSolutionValue() <= currentSolution.getSolutionValue() + bestDelta)
+    if (bestDelta == 0)
         return bestSwap;
     route = currentSolution.getRoute();
     std::swap(route[bestI], route[bestJ]);
@@ -173,32 +189,31 @@ Solution swap(Instance &instance, Solution currentSolution)
     {
         solValue += instance.getDistanceMatrix()[route[k]][route[k + 1]];
     }
-    if (solValue < bestSwap.getSolutionValue())
-    {
-        bestSwap.setRoute(route);
-        bestSwap.setSolutionValue(solValue);
+    cout << "Delta "<< bestDelta<<" Sto cambiando best sol da " << currentSolution.getSolutionValue() << " in " << currentSolution.getSolutionValue() + bestDelta << endl;
+    bestSwap.setRoute(route);
+    bestSwap.setSolutionValue(currentSolution.getSolutionValue() + bestDelta);
 
-        // Print best solution
-        // cout << "Improvement solution - Opt-2: ";
-        // for (int k = 0; k < route.size() - 1; k++)
-        // {
-        //     cout << route[k] << " ";
-        // }
-        // cout << endl;
-    }
-    solValue = 0;
-    //cout << "dopo " << bestDelta << " " << currentSolution.getSolutionValue() << " " << bestSwap.getSolutionValue() << endl;
     // Print best solution
-    // cout << "Improvement solution - Swap: ";
+    // cout << "Improvement solution - swap: ";
     // for (int k = 0; k < route.size() - 1; k++)
     // {
     //     cout << route[k] << " ";
     // }
     // cout << endl;
 
+    // cout << "dopo " << bestDelta << " " << currentSolution.getSolutionValue() << " " << bestSwap.getSolutionValue() << endl;
+    //  Print best solution
+    //  cout << "Improvement solution - Swap: ";
+    //  for (int k = 0; k < route.size() - 1; k++)
+    //  {
+    //      cout << route[k] << " ";
+    //  }
+    //  cout << endl;
+
     return bestSwap;
 }
 */
+
 /**
  * @brief Local search - 2-opt. First compute the delta of the 2-opt, if it is negative, then swap the nodes.
  *
@@ -342,11 +357,12 @@ void VND::run(Instance &instance, Solution &currentSolution)
             /**** Swap ****/
             // cout << "Swap" << endl;
             bestSolution = swap(instance, currentSolution);
+            cout << "swap solution " << bestSolution.getSolutionValue() << " " << currentSolution.getSolutionValue() << endl;
             if (bestSolution.getSolutionValue() < currentSolution.getSolutionValue())
             {
-                //cout << "New swap solution " << bestSolution.getSolutionValue() << " " << currentSolution.getSolutionValue() << endl;
+                cout << "new solution " <<endl;
                 currentSolution = bestSolution;
-                selected_neighborhood = 1;
+                //selected_neighborhood = 1;
             }
             else
             {
@@ -360,7 +376,7 @@ void VND::run(Instance &instance, Solution &currentSolution)
 
             if (bestSolution.getSolutionValue() < currentSolution.getSolutionValue())
             {
-                //cout << "New 2opt solution " << bestSolution.getSolutionValue() << " " << currentSolution.getSolutionValue() << endl;
+                // cout << "New 2opt solution " << bestSolution.getSolutionValue() << " " << currentSolution.getSolutionValue() << endl;
 
                 currentSolution = bestSolution;
                 selected_neighborhood = 1;
@@ -377,7 +393,7 @@ void VND::run(Instance &instance, Solution &currentSolution)
 
             if (bestSolution.getSolutionValue() < currentSolution.getSolutionValue())
             {
-                //cout << "New reinsertion solution " << bestSolution.getSolutionValue() << " " << currentSolution.getSolutionValue() << endl;
+                // cout << "New reinsertion solution " << bestSolution.getSolutionValue() << " " << currentSolution.getSolutionValue() << endl;
                 currentSolution = bestSolution;
                 selected_neighborhood = 1;
             }

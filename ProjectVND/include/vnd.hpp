@@ -13,6 +13,7 @@ class VND
 {
 private:
     int calculate_delta_swap( int i, int j, const vector<vector<double>> &distance_matrix);
+    int calculate_delta_swap2(const vector<int> &path, int i, int j, const vector<vector<double>> &distance_matrix);
     int calculate_delta_2opt(const vector<int> &path, int i, int j, const vector<vector<double>> &distance_matrix);
     int calculate_delta_reinsertion(const vector<int> &path, int i, int j, const vector<vector<double>> &distance_matrix);
     Solution swap(Instance &instance, Solution currentSolution);
