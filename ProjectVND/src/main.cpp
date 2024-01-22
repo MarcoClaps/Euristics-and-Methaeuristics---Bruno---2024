@@ -87,8 +87,7 @@ bool replace(std::string &str, const std::string &from, const std::string &to)
  ***********************************************************************************/
 void exportResults(string &path, Solution &solution, vector<int> &routeGre, int &executionTimeGreedy, int &solutionValueGreedy, vector<int> &routeVND, int &executionTimeVND, int &solutionValueVND)
 {
-    // path = replace(path, "data", "output");
-    ofstream file(path);
+
     // gather the size of the route
     int n = routeGre.size();
     // Do the square root (douple) the ceil (int)
@@ -96,10 +95,11 @@ void exportResults(string &path, Solution &solution, vector<int> &routeGre, int 
     // print the breakline value
     cout << "Breakline with value: " << breakline << endl;
 
+    ofstream file(path);
     if (file.is_open())
     {
         file << "##### Initial Solution #####" << endl;
-        file << "Route: ";
+        file << "Route: " << endl;
         int printed = 0;
         for (int i = 0; i < routeGre.size(); i++)
         {

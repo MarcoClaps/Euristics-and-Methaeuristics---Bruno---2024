@@ -30,21 +30,6 @@ int VND::calculate_delta_swap(int i, int j, const vector<vector<double>> &distan
     return new_distance - current_distance;
 }
 
-//Not used!
-int VND::calculate_delta_swap2(const vector<int>& path, int i, int j, const vector<vector<double>>& distance_matrix) {
-    int n = path.size();
-
-    int a = path[i];
-    int b = path[(i + 1) % n];
-    int c = path[j];
-    int d = path[(j + 1) % n];
-
-    double current_distance = distance_matrix[a][b] + distance_matrix[c][d];
-    double new_distance = distance_matrix[a][c] + distance_matrix[b][d];
-
-    return new_distance - current_distance;
-}
-
 /**
  * @brief Computes the difference in total distance in a possible 2-opt move
  *
