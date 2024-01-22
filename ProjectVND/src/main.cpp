@@ -62,6 +62,15 @@ Solution greedyConstruction(Instance &instance)
     return solution;
 }
 
+bool replace(std::string &str, const std::string &from, const std::string &to)
+{
+    size_t start_pos = str.find(from);
+    if (start_pos == std::string::npos)
+        return false;
+    str.replace(start_pos, from.length(), to);
+    return true;
+}
+
 /***********************************************************************************
  * @brief: export the results to a txt file. Greedy and VND execution time and solution value
  *
@@ -78,6 +87,7 @@ Solution greedyConstruction(Instance &instance)
  ***********************************************************************************/
 void exportResults(string &path, Solution &solution, vector<int> &routeGre, int &executionTimeGreedy, int &solutionValueGreedy, vector<int> &routeVND, int &executionTimeVND, int &solutionValueVND)
 {
+    // path = replace(path, "data", "output");
     ofstream file(path);
     // gather the size of the route
     int n = routeGre.size();
@@ -215,12 +225,12 @@ int main(int argc, char **argv)
     // export the results
     // instance name
     string instanceName = argv[1];
-    // substring to remove the path and the extension of the instance
-    instanceName = instanceName.substr(instanceName.find_last_of("/") + 1, instanceName.find_last_of(".") - instanceName.find_last_of("/") - 1);
-    // txt file name
-    string instanceResult = "../output/" + instanceName + ".txt";
+    cout << "Instance file " << instanceName << endl;
+    replace(instanceName, "data", "output");
+    replace(instanceName, ".txt", "_result.txt");
+    cout << "Output file " << instanceName << endl;
     // call the function to export the results
-    exportResults(instanceResult, solution, routeGre, executionTimeGreedy, solutionValueGreedy, routeVND, executionTimeVND, solutionValueVND);
+    exportResults(instanceName, solution, routeGre, executionTimeGreedy, solutionValueGreedy, routeVND, executionTimeVND, solutionValueVND);
 
     return 0;
 }

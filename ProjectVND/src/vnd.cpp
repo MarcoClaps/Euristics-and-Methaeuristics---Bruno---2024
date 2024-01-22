@@ -105,7 +105,7 @@ Solution VND::swap(Instance &instance, Solution currentSolution)
     {
         for (int j = i + 1; j < currentSolution.getRoute().size() - 1; j++)
         {
-            int delta = calculate_delta_swap( i, j, instance.getDistanceMatrix());
+            int delta = calculate_delta_swap(i, j, instance.getDistanceMatrix());
             if (delta >= 0)
             {
                 continue;
@@ -136,7 +136,69 @@ Solution VND::swap(Instance &instance, Solution currentSolution)
     }
     return bestSwap;
 }
+/*
+Solution swap(Instance &instance, Solution currentSolution)
+{
+    vector<int> route;
+    Solution bestSwap;
+    bestSwap.setSolutionValue(currentSolution.getSolutionValue());
+    int bestDelta = 0;
+    int bestI = 1;
+    int bestJ = 2;
+    for (int i = 1; i < currentSolution.getRoute().size() - 1; i++)
+    {
+        for (int j = i + 1; j < currentSolution.getRoute().size() - 1; j++)
+        {
+            int delta = calculate_delta_swap(i, j, instance.getDistanceMatrix());
+            if (delta >= 0)
+            {
+                continue;
+            }
+            if (bestDelta > delta)
+            {
+                bestDelta = delta;
+                bestI = i;
+                bestJ = j;
+            }
+        }
+    }
+    //cout << "prima " << bestDelta << " " << currentSolution.getSolutionValue() << " " << bestSwap.getSolutionValue() << endl;
 
+    if (bestSwap.getSolutionValue() <= currentSolution.getSolutionValue() + bestDelta)
+        return bestSwap;
+    route = currentSolution.getRoute();
+    std::swap(route[bestI], route[bestJ]);
+    int solValue = 0;
+    for (int k = 0; k < route.size() - 1; k++)
+    {
+        solValue += instance.getDistanceMatrix()[route[k]][route[k + 1]];
+    }
+    if (solValue < bestSwap.getSolutionValue())
+    {
+        bestSwap.setRoute(route);
+        bestSwap.setSolutionValue(solValue);
+
+        // Print best solution
+        // cout << "Improvement solution - Opt-2: ";
+        // for (int k = 0; k < route.size() - 1; k++)
+        // {
+        //     cout << route[k] << " ";
+        // }
+        // cout << endl;
+    }
+    solValue = 0;
+    //cout << "dopo " << bestDelta << " " << currentSolution.getSolutionValue() << " " << bestSwap.getSolutionValue() << endl;
+    // Print best solution
+    // cout << "Improvement solution - Swap: ";
+    // for (int k = 0; k < route.size() - 1; k++)
+    // {
+    //     cout << route[k] << " ";
+    // }
+    // cout << endl;
+
+    return bestSwap;
+}
+*/
 /**
  * @brief Local search - 2-opt. First compute the delta of the 2-opt, if it is negative, then swap the nodes.
  *
@@ -229,7 +291,7 @@ Solution VND::reinsertion(Instance &instance, Solution currentSolution)
             int delta = calculate_delta_reinsertion(route, i, j, instance.getDistanceMatrix());
             if (delta >= 0)
                 continue;
-                
+
             for (int k = i; k <= j; k++)
             {
                 std::swap(route[k], route[k + 1]);
@@ -280,9 +342,9 @@ void VND::run(Instance &instance, Solution &currentSolution)
             /**** Swap ****/
             // cout << "Swap" << endl;
             bestSolution = swap(instance, currentSolution);
-
             if (bestSolution.getSolutionValue() < currentSolution.getSolutionValue())
             {
+                //cout << "New swap solution " << bestSolution.getSolutionValue() << " " << currentSolution.getSolutionValue() << endl;
                 currentSolution = bestSolution;
                 selected_neighborhood = 1;
             }
@@ -298,6 +360,8 @@ void VND::run(Instance &instance, Solution &currentSolution)
 
             if (bestSolution.getSolutionValue() < currentSolution.getSolutionValue())
             {
+                //cout << "New 2opt solution " << bestSolution.getSolutionValue() << " " << currentSolution.getSolutionValue() << endl;
+
                 currentSolution = bestSolution;
                 selected_neighborhood = 1;
             }
@@ -313,6 +377,7 @@ void VND::run(Instance &instance, Solution &currentSolution)
 
             if (bestSolution.getSolutionValue() < currentSolution.getSolutionValue())
             {
+                //cout << "New reinsertion solution " << bestSolution.getSolutionValue() << " " << currentSolution.getSolutionValue() << endl;
                 currentSolution = bestSolution;
                 selected_neighborhood = 1;
             }
