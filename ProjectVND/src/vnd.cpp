@@ -17,10 +17,15 @@ VND::~VND()
  * @param distance_matrix
  * @return int
  */
-int VND::calculate_delta_swap(const vector<int> &path, int i, int j, const vector<vector<double>> &distance_matrix)
+int VND::calculate_delta_swap(int i, int j, const vector<vector<double>> &distance_matrix)
 {
-    double current_distance = distance_matrix[i - 1][i] + distance_matrix[i][i + 1] + distance_matrix[j - 1][j] + distance_matrix[j][j + 1];
-    double new_distance = distance_matrix[i - 1][j] + distance_matrix[j][i + 1] + distance_matrix[j - 1][i] + distance_matrix[i][j + 1];
+    double current_distance = distance_matrix[i - 1][i] + distance_matrix[j][j + 1];
+    double new_distance = distance_matrix[i - 1][j] + distance_matrix[i][j + 1];
+    if (i + 1 != j)
+    {
+        current_distance += distance_matrix[i][i + 1] + distance_matrix[j - 1][j];
+        new_distance += distance_matrix[j][i + 1] + distance_matrix[j - 1][i];
+    }
 
     return new_distance - current_distance;
 }
@@ -100,7 +105,7 @@ Solution VND::swap(Instance &instance, Solution currentSolution)
     {
         for (int j = i + 1; j < currentSolution.getRoute().size() - 1; j++)
         {
-            int delta = calculate_delta_swap(currentSolution.getRoute(), i, j, instance.getDistanceMatrix());
+            int delta = calculate_delta_swap( i, j, instance.getDistanceMatrix());
             if (delta >= 0)
             {
                 continue;
