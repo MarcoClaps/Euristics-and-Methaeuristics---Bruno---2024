@@ -357,10 +357,10 @@ void VND::run(Instance &instance, Solution &currentSolution)
             /**** Swap ****/
             // cout << "Swap" << endl;
             bestSolution = swap(instance, currentSolution);
-            cout << "swap solution " << bestSolution.getSolutionValue() << " " << currentSolution.getSolutionValue() << endl;
+            //cout << "swap solution " << bestSolution.getSolutionValue() << " " << currentSolution.getSolutionValue() << endl;
             if (bestSolution.getSolutionValue() < currentSolution.getSolutionValue())
             {
-                cout << "new solution " <<endl;
+                //cout << "new solution " <<endl;
                 currentSolution = bestSolution;
                 //selected_neighborhood = 1;
             }
